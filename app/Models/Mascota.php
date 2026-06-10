@@ -8,6 +8,8 @@ class Mascota extends Model
 {
     protected $table = 'mascotas';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'nombre',
         'tipo',

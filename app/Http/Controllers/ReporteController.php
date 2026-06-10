@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reporte;
+use App\Models\Mascota;
 use Illuminate\Http\Request;
 
 class ReporteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $reportes = Reporte::with('mascota')->get();
+
+        return view('reportes.index', compact('reportes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $mascotas = Mascota::all();
+
+        return view('reportes.create', compact('mascotas'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'fecha_perdida' => 'required|date',
+            'zona_barrio' => 'required|max:100',
+            'estado' => 'required',
+            'recompensa' => 'required|numeric',
+            'mascota_id' => 'required|exists:mascotas,id'
+        ]);
+
+        Reporte::create($request->all());
+
+        return redirect()->route('reportes.index')
+            ->with('success', 'Reporte registrado correctamente');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        $reporte = Reporte::findOrFail($id);
+
+        $mascotas = Mascota::all();
+
+        return view('reportes.edit', compact('reporte', 'mascotas'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $reporte = Reporte::findOrFail($id);
+
+        $request->validate([
+            'fecha_perdida' => 'required|date',
+            'zona_barrio' => 'required|max:100',
+            'estado' => 'required',
+            'recompensa' => 'required|numeric',
+            'mascota_id' => 'required|exists:mascotas,id'
+        ]);
+
+        $reporte->update($request->all());
+
+        return redirect()->route('reportes.index')
+            ->with('success', 'Reporte actualizado');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        Reporte::destroy($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('reportes.index')
+            ->with('success', 'Reporte eliminado');
     }
 }

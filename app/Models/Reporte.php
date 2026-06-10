@@ -8,6 +8,8 @@ class Reporte extends Model
 {
     protected $table = 'reportes';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'fecha_perdida',
         'zona_barrio',

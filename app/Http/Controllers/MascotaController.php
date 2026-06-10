@@ -2,63 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Mascota;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class MascotaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $mascotas = Mascota::with('usuario')->get();
+
+        return view('mascotas.index', compact('mascotas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $usuarios = Usuario::all();
+
+        return view('mascotas.create', compact('usuarios'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|max:50',
+            'tipo' => 'required|max:30',
+            'raza' => 'required|max:50',
+            'color' => 'required|max:50',
+            'usuario_id' => 'required|exists:usuarios,id'
+        ]);
+
+        Mascota::create($request->all());
+
+        return redirect()->route('mascotas.index')
+            ->with('success', 'Mascota registrada correctamente');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        $mascota = Mascota::findOrFail($id);
+
+        $usuarios = Usuario::all();
+
+        return view('mascotas.edit', compact('mascota', 'usuarios'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $mascota = Mascota::findOrFail($id);
+
+        $request->validate([
+            'nombre' => 'required|max:50',
+            'tipo' => 'required|max:30',
+            'raza' => 'required|max:50',
+            'color' => 'required|max:50',
+            'usuario_id' => 'required|exists:usuarios,id'
+        ]);
+
+        $mascota->update($request->all());
+
+        return redirect()->route('mascotas.index')
+            ->with('success', 'Mascota actualizada');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        Mascota::destroy($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('mascotas.index')
+            ->with('success', 'Mascota eliminada');
     }
 }
