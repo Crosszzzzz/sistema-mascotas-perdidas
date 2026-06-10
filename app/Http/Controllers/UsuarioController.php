@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Usuario;
+use Illuminate\Http\Request;
+
+class UsuarioController extends Controller
+{
+    public function index()
+    {
+        $usuarios = Usuario::all();
+        return view('usuarios.index', compact('usuarios'));
+    }
+
+    public function create()
+    {
+        return view('usuarios.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|min:3|max:100',
+            'telefono' => 'required',
+            'correo' => 'required|email|unique:usuarios',
+            'ciudad' => 'required'
+        ]);
+
+        Usuario::create($request->all());
+
+        return redirect()->route('usuarios.index')
+            ->with('success', 'Usuario registrado correctamente');
+    }
+
+    public function edit($id)
+    {
+        $usuario = Usuario::findOrFail($id);
+        return view('usuarios.edit', compact('usuario'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        $request->validate([
+            'nombre' => 'required|min:3|max:100',
+            'telefono' => 'required',
+            'correo' => 'required|email',
+            'ciudad' => 'required'
+        ]);
+
+        $usuario->update($request->all());
+
+        return redirect()->route('usuarios.index')
+            ->with('success', 'Usuario actualizado');
+    }
+
+    public function destroy($id)
+    {
+        Usuario::destroy($id);
+
+        return redirect()->route('usuarios.index')
+            ->with('success', 'Usuario eliminado');
+    }
+}
